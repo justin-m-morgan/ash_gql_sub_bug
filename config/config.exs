@@ -7,6 +7,10 @@
 # General application configuration
 import Config
 
+config :ash_graphql,
+  authorize_update_destroy_with_error?: true,
+  subscriptions: true
+
 config :ash,
   allow_forbidden_field_for_relationships_by_default?: true,
   include_embedded_source_by_default?: false,
@@ -16,13 +20,16 @@ config :ash,
   keep_read_action_loads_when_loading?: false,
   default_actions_require_atomic?: true,
   read_action_after_action_hooks_in_order?: true,
-  bulk_actions_default_to_errors?: true
+  bulk_actions_default_to_errors?: true,
+  custom_types: [my_enum: AshGqlSubBug.TestDomain.MyEnum]
 
 config :spark,
   formatter: [
     remove_parens?: true,
     "Ash.Resource": [
       section_order: [
+        :postgres,
+        :graphql,
         :resource,
         :code_interface,
         :actions,
@@ -39,12 +46,15 @@ config :spark,
         :identities
       ]
     ],
-    "Ash.Domain": [section_order: [:resources, :policies, :authorization, :domain, :execution]]
+    "Ash.Domain": [
+      section_order: [:graphql, :resources, :policies, :authorization, :domain, :execution]
+    ]
   ]
 
 config :ash_gql_sub_bug,
   ecto_repos: [AshGqlSubBug.Repo],
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime],
+  ash_domains: [AshGqlSubBug.TestDomain]
 
 # Configures the endpoint
 config :ash_gql_sub_bug, AshGqlSubBugWeb.Endpoint,

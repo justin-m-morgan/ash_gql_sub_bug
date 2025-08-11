@@ -1,5 +1,6 @@
 defmodule AshGqlSubBugWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :ash_gql_sub_bug
+  use Absinthe.Phoenix.Endpoint
 
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
@@ -14,6 +15,8 @@ defmodule AshGqlSubBugWeb.Endpoint do
   socket "/live", Phoenix.LiveView.Socket,
     websocket: [connect_info: [session: @session_options]],
     longpoll: [connect_info: [session: @session_options]]
+
+  socket "/ws/gql", AshGqlSubBugWeb.GraphqlSocket, websocket: true, longpoll: true
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -44,7 +47,7 @@ defmodule AshGqlSubBugWeb.Endpoint do
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 
   plug Plug.Parsers,
-    parsers: [:urlencoded, :multipart, :json],
+    parsers: [:urlencoded, :multipart, :json, Absinthe.Plug.Parser],
     pass: ["*/*"],
     json_decoder: Phoenix.json_library()
 

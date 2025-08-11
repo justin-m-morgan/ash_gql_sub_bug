@@ -1,6 +1,10 @@
 defmodule AshGqlSubBugWeb.Router do
   use AshGqlSubBugWeb, :router
 
+  pipeline :graphql do
+    plug AshGraphql.Plug
+  end
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -12,6 +16,17 @@ defmodule AshGqlSubBugWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+  end
+
+  scope "/gql" do
+    pipe_through [:graphql]
+
+    forward "/playground", Absinthe.Plug.GraphiQL,
+      schema: Module.concat(["AshGqlSubBugWeb.GraphqlSchema"]),
+      socket: Module.concat(["AshGqlSubBugWeb.GraphqlSocket"]),
+      interface: :playground
+
+    forward "/", Absinthe.Plug, schema: Module.concat(["AshGqlSubBugWeb.GraphqlSchema"])
   end
 
   scope "/", AshGqlSubBugWeb do
